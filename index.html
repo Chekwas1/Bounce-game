@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Succinct Ball Quiz Game</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #111;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+        
+        #game-container {
+            position: relative;
+            width: 600px;
+            height: 400px;
+        }
+        
+        #game-box {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 0px;
+            background: linear-gradient(135deg, rgba(255,20,147,0.2), rgba(255,105,180,0.4));
+            box-shadow: 0 0 15px rgba(255,105,180,0.5);
+            transition: all 0.5s ease;
+            overflow: hidden;
+        }
+        
+        #fish {
+            position: absolute;
+            width: 40px;
+            height: 25px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 25'%3E%3Cpath d='M38,12.5 C35,7 28,4 22,4 C16,4 10,2 6,0 C6,0 6,25 6,25 C10,23 16,21 22,21 C28,21 35,18 38,12.5 Z' fill='%23FF6B8B'/%3E%3Ccircle cx='33' cy='10' r='2' fill='%23111'/%3E%3Cpath d='M8,12.5 L0,17 L0,8 Z' fill='%23FF6B8B'/%3E%3C/svg%3E");
+            background-size: cover;
+            transform: scaleX(1);
+            z-index: 10;
+        }
+        
+        #ball {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(255,255,255,0.8);
+            z-index: 5;
+        }
+        
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background-color: rgba(255,192,203,0.4);
+            transform: scale(0);
+            animation: ripple 0.8s ease-out;
+        }
+        
+        @keyframes ripple {
+            to {
+                transform: scale(3);
+                opacity: 0;
+            }
+        }
+        
+        #score {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: #FF69B4;
+            font-size: 24px;
+        }
+        
+        #level {
+            position: absolute;
+            top: -70px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: #FF69B4;
+            font-size: 18px;
+        }
+        
+        /* Start Screen Styles with Neon Pink Pulse Effect */
+        #startScreen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #0a0a1a; /* Darker background for better neon effect */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    z-index: 10;
+    overflow-y: auto; /* Enable vertical scrolling */
+    padding: 20px 0; /* Add padding to prevent content from touching edges */
+}
+
+#startScreen h1 {
+    font-size: 48px; /* Larger font for more impact */
+    margin-bottom: 30px;
+    color: #fff;
+    text-shadow: 0 0 10px #ff41b4, 0 0 20px #ff41b4, 0 0 40px #ff41b4;
+    animation: neonPulse 2s infinite alternate;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+#startScreen button {
+    padding: 15px 30px;
+    font-size: 20px;
+    background: transparent;
+    color: #ff41b4;
+    border: 2px solid #ff41b4;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 15px;
+    min-width: 200px;
+    font-weight: bold;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+    box-shadow: 0 0 5px #ff41b4, 0 0 10px #ff41b4;
+    animation: neonPulse 2s infinite alternate;
+}
+
+#startScreen button:hover {
+    background-color: #ff41b4;
+    color: #0a0a1a;
+    box-shadow: 0 0 10px #ff41b4, 0 0 20px #ff41b4, 0 0 40px #ff41b4;
+}
+
+/* Neon pulse animation */
+@keyframes neonPulse {
+    0% {
+        text-shadow: 0 0 10px #ff41b4, 0 0 20px #ff41b4;
+        box-shadow: 0 0 5px #ff41b4, 0 0 10px #ff41b4;
+    }
+    100% {
+        text-shadow: 0 0 15px #ff41b4, 0 0 25px #ff41b4, 0 0 35px #ff41b4;
+        box-shadow: 0 0 10px #ff41b4, 0 0 20px #ff41b4, 0 0 30px #ff41b4;
+    }
+}
+        
+        /* FAQ Content Styles with matching theme */
+        #faqContent {
+    display: none;
+    max-width: 600px;
+    padding: 0 30px 30px 30px; /* Remove top padding since header has its own */
+    text-align: left;
+    background-color: rgba(10, 10, 26, 0.9);
+    border: 2px solid #ff41b4;
+    border-radius: 10px;
+    box-shadow: 0 0 15px #ff41b4;
+    margin: 20px 0;
+    max-height: 80vh; /* Limit height to 80% of viewport */
+    overflow-y: auto; /* Enable scrolling for content */
+    position: relative; /* For proper positioning of sticky header */
+}
+
+#faqContent h2 {
+    color: #fff;
+    text-shadow: 0 0 10px #ff41b4, 0 0 20px #ff41b4;
+    font-size: 28px;
+    margin: 0 0 20px 0; /* Adjust margin */
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: sticky;
+    top: 0;
+    background-color: rgba(10, 10, 26, 1); /* Fully opaque background */
+    padding: 20px 0;
+    z-index: 2; /* Ensure header sits above content */
+    border-bottom: 1px solid #ff41b4; /* Add border for visual separation */
+    width: 100%; /* Ensure it spans the full width */
+}
+
+#faqContent dl {
+    margin-top: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+#faqContent dt {
+    font-weight: bold;
+    margin-top: 15px;
+    color: #ff41b4;
+    font-size: 18px;
+}
+
+#faqContent dd {
+    margin-left: 20px;
+    margin-bottom: 15px;
+    line-height: 1.6;
+}
+
+.back-button {
+    margin-top: 30px;
+    padding: 12px 24px;
+    background: transparent;
+    color: #ff41b4;
+    border: 2px solid #ff41b4;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s;
+    box-shadow: 0 0 5px #ff41b4;
+    display: block; /* Make it a block element */
+    margin-left: auto; /* Center it */
+    margin-right: auto;
+}
+
+.back-button:hover {
+    background-color: #ff41b4;
+    color: #0a0a1a;
+    box-shadow: 0 0 10px #ff41b4, 0 0 20px #ff41b4;
+}
+    </style>
+</head>
+<body>
+    <img src="logo.jpg.jpg" alt="Succinct Logo" style="
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        width: 130px;
+        height: auto;
+        z-index: 1000;
+        filter: drop-shadow(0 0 10px rgba(255, 65, 180, 0.5));
+        transition: all 0.3s ease;
+    " onmouseover="this.style.filter='drop-shadow(0 0 15px rgba(255, 65, 180, 0.8))'; this.style.transform='scale(1.05)'"
+    onmouseout="this.style.filter='drop-shadow(0 0 10px rgba(255, 65, 180, 0.5))'; this.style.transform='scale(1)'">
+
+    <div id="startScreen">
+        <h1>Bouncing Ball Quiz Game</h1>
+        <button id="startButton">Start Game</button>
+        <button id="faqButton">How To Play</button>
+        <div id="faqContent">
+            <h2>How To Play</h2>
+            <dl>
+                <dt>Goal:</dt>
+                <dd>Chase and catch the bouncing ball to score points and advance through levels.</dd>
+                
+                <dt>Controls:</dt>
+                <dd>Use your mouse or touch to guide the fish - it will follow your cursor.</dd>
+                
+                <dt>Scoring:</dt>
+                <dd>Each catch earns 10 points. Reach 100 points to complete a level.</dd>
+                
+                <dt>Level Completion:</dt>
+                <dd>When you reach 100 points, you'll see a "SUCCINCT!" animation and advance to the next level.</dd>
+                
+                <dt>Difficulty:</dt>
+                <dd>Each level introduces new box shapes and colors. The fish and ball speed increase as you progress.</dd>
+                
+                <dt>Box Effects:</dt>
+                <dd>Watch for ripple effects and color pulses when the ball hits the walls!</dd>
+            </dl>
+            <button class="back-button">Back</button>
+        </div>
+    </div>
+    <div id="game-container">
+        <div id="level">Level: 1</div>
+        <div id="score">Score: 0</div>
+        <div id="game-box"></div>
+        <div id="fish"></div>
+        <div id="ball"></div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
